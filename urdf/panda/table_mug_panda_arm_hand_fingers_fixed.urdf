@@ -256,7 +256,8 @@
   <link name="mug">
     <visual>
       <geometry>
-        <mesh filename="package://franka_pbds_controllers/meshes/mug.dae"/>
+        <!-- <mesh filename="package://franka_pbds_controllers/meshes/mug.dae"/> -->
+        <mesh filename="package://franka_description/meshes/mug.dae"/>
       </geometry>
     </visual>
   </link>

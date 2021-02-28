@@ -1,3 +1,36 @@
+# function single_task_components(xm, vm, task::Task{<:BaseTaskMap}, CM::Chart{I,M},
+#         CN::Chart{J,N}) where {M,N,I,J}
+#     m, n = dim(M), dim(N)
+    
+#     σ, σdot = xm, vm
+#     Jf = task_jacobian_chart(σ, task, CM, CN)
+#     Jfdot = task_jacobian_chart_dot(σ, σdot, task, CM, CN)
+#     xn = task_map_chart(σ, task, CM, CN)
+#     vn = Jf*vm
+    
+#     Γ = christoffel_symbols(xn, task, CN)
+#     if any(isinf.(Γ)) || any(isnan.(Γ))
+#         Γ = eltype(xm).(christoffel_symbols(BigFloat.(xn), task, CN))
+#     end
+#     g = metric_chart(xn, task, CN)
+#     ginv = inv(g)
+
+#     ℱ_pot = potential_force_chart(xn, task, CN)
+#     ℱ_dis = dissipative_forces_chart(xn, vn, task, CN)
+#     ℱ = ℱ_pot + ℱ_dis
+    
+#     m_inds, n_inds = static(1):static(m), static(1):static(n)
+#     Ξ = SMatrix{n,m,eltype(xm)}([sum(Tuple(Jf[l,j]*Γ[l,h,k]*Jf[h,r]*σdot[r]
+#         for l=n_inds, h=n_inds, r=m_inds)) for k=n_inds, j=m_inds])
+#     W = weight_metric_chart(xn, vn, task, CN)
+
+#     JftWJf = Jf'*W*Jf
+#     JftWA = Jf'*W*(ginv*ℱ - (Jfdot + Ξ)*σdot)
+
+#     JftWJf, JftWA
+# end
+
+# Sid: adding an error check to help debug something
 function single_task_components(xm, vm, task::Task{<:BaseTaskMap}, CM::Chart{I,M},
         CN::Chart{J,N}) where {M,N,I,J}
     m, n = dim(M), dim(N)
@@ -27,6 +60,20 @@ function single_task_components(xm, vm, task::Task{<:BaseTaskMap}, CM::Chart{I,M
     JftWJf = Jf'*W*Jf
     JftWA = Jf'*W*(ginv*ℱ - (Jfdot + Ξ)*σdot)
 
+    # Sid: added a try-catch to determine the issue
+    try
+        display("Look at single task component")
+#       display(JftWJf_sum)
+#       error("testing error checking") 
+        pinv(Matrix(JftWJf))
+    catch            
+        display("Culprit single task?")
+        display(task)
+        display(JftWJf)
+        display(Jf)
+        error("single task error checking") 
+    end
+    
     JftWJf, JftWA
 end
 
@@ -43,6 +90,30 @@ function single_task_acceleration(xm, vm, task::Task{<:BaseTaskMap}, CM::Chart{I
     σxddot, CN
 end
 
+# function multiple_task_acceleration(xm, vm, tasks::TaskList, CM::Chart{I,M}, CNs::ChartList,
+#         robot_coord_rep=ChartRep(); log_task_chart=false) where {M,I}
+#     m = dim(M)
+#     JftWJf_sum = zeros(m,m)
+#     JftWA_sum = zeros(m)
+#     CNs_out = ChartList()
+
+#     (xm, vm) = robot_coord_rep == EmbRep() ? emb_to_chart_differential(xm, vm, CM) : (xm, vm)
+#     for i in 1:length(tasks)
+#         CN = isglobal(CNs[i]) ? CNs[i] : choose_chart_chart(xm, tasks[i], CM, CNs[i])
+#         JftWJf, JftWA = single_task_components(xm, vm, tasks[i], CM, CN)
+#         JftWJf_sum += JftWJf
+#         JftWA_sum += JftWA
+#         log_task_chart && push!(CNs_out, CN)
+#     end
+
+#     σxddot = SMatrix{m,m,eltype(xm)}(pinv(Matrix(JftWJf_sum)))*JftWA_sum
+#     if robot_coord_rep == EmbRep()
+#         xme, vme, σxddot = chart_to_emb_differential(xm, vm, σxddot, CM)
+#     end
+#     σxddot, CNs_out
+# end
+
+# Sid: adding an error check to help debug something
 function multiple_task_acceleration(xm, vm, tasks::TaskList, CM::Chart{I,M}, CNs::ChartList,
         robot_coord_rep=ChartRep(); log_task_chart=false) where {M,I}
     m = dim(M)
@@ -54,11 +125,36 @@ function multiple_task_acceleration(xm, vm, tasks::TaskList, CM::Chart{I,M}, CNs
     for i in 1:length(tasks)
         CN = isglobal(CNs[i]) ? CNs[i] : choose_chart_chart(xm, tasks[i], CM, CNs[i])
         JftWJf, JftWA = single_task_components(xm, vm, tasks[i], CM, CN)
+               
         JftWJf_sum += JftWJf
         JftWA_sum += JftWA
         log_task_chart && push!(CNs_out, CN)
+        
+        # Sid: added a try-catch to determine the issue
+        try
+            display("Look inside the loop")
+#             display(JftWJf_sum)
+#             error("testing error checking") 
+            pinv(Matrix(JftWJf_sum))
+        catch            
+            display("Culprit task?")
+            display(tasks[i])
+            display(JftWJf)
+            error("testing error checking") 
+        end
     end
 
+    # Sid: added a try-catch to determine the issue
+    try
+        display("Look at this")
+        display(JftWJf_sum)
+#        error("testing error checking") 
+    catch
+        error("testing error checking") 
+    end
+    
+    
+    
     σxddot = SMatrix{m,m,eltype(xm)}(pinv(Matrix(JftWJf_sum)))*JftWA_sum
     if robot_coord_rep == EmbRep()
         xme, vme, σxddot = chart_to_emb_differential(xm, vm, σxddot, CM)
