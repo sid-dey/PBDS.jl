@@ -786,6 +786,10 @@
     <visual>
       <geometry>
         <mesh filename="package://franka_description/meshes/mug.dae"/>
+        <!-- <mesh filename="file:///home/sid/.julia/dev/PBDS/urdf/meshes/mug.dae"/>  -->
+        <!--/// means absolute path-->
+        <!-- <mesh filename="file://../meshes/mug.dae"/> -->
+        <!-- <mesh filename="package://$(find panda_roahm)/worlds/mug.dae"/> -->
       </geometry>
     </visual>
   </link>
