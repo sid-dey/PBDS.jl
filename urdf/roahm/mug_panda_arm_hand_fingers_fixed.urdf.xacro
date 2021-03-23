@@ -5,5 +5,6 @@
   <xacro:panda_arm />
   <xacro:hand_fingers_fixed ns="panda" rpy="0 0 ${-pi/4}" connected_to="panda_link8" q_fingers="0.02"/>
   <xacro:include filename="mug.xacro"/>
-  <xacro:mug connected_to="panda_link0" xyz="0.5 0.5 0"/>
+  <!-- <xacro:mug connected_to="panda_link0" xyz="0.5 0.5 0"/> -->
+  <xacro:mug connected_to="panda_link0" xyz="0.5 0.5 0.5"/>
 </robot>

@@ -33,7 +33,8 @@
     </visual>
     <visual>
       <!-- <origin xyz="${pandax} ${-pandamounty/2} ${-pandamountz/2+pandamountzoffset}" rpy="0 0 0"/> -->
-      <origin xyz="${pandax} ${panday} ${-pandamountz+pandamountzoffset}" rpy="0 0 ${-pi/2}"/>
+      <!-- <origin xyz="${pandax} ${panday} ${-pandamountz+pandamountzoffset}" rpy="0 0 ${-pi/2}"/>     -->
+      <origin xyz="${pandax} ${panday} ${-pandamountz+pandamountzoffset}" rpy="0 0 0"/>    
       <geometry>
         <box size="${pandamountx} ${pandamounty} ${pandamountz}"/>
       </geometry>

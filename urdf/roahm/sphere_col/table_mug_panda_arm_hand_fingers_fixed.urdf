@@ -18,7 +18,8 @@
     </visual>
     <visual>
       <!-- <origin xyz="${pandax} ${-pandamounty/2} ${-pandamountz/2+pandamountzoffset}" rpy="0 0 0"/> -->
-      <origin rpy="0 0 -1.57079632679" xyz="0 0 -0.06604"/>
+      <!-- <origin xyz="${pandax} ${panday} ${-pandamountz+pandamountzoffset}" rpy="0 0 ${-pi/2}"/>     -->
+      <origin rpy="0 0 0" xyz="0 0 -0.06604"/>
       <geometry>
         <box size="0.3048 0.36576 0.09144"/>
       </geometry>
@@ -39,7 +40,7 @@
   <joint name="panda_joint_table" type="fixed">
     <parent link="table"/>
     <child link="panda_link0"/>
-    <origin rpy="0 0 1.57079632679" xyz="0 0 0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
   </joint>
   <link name="panda_link0">
     <visual>
